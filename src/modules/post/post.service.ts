@@ -1,4 +1,4 @@
-import { Strict } from "./../../../generated/prisma/internal/prismaNamespace";
+import { PostWhereInput } from "./../../../generated/prisma/models/Post";
 import { Post } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
@@ -15,8 +15,56 @@ const createPost = async (
   return result;
 };
 
-const getPosts = async () => {
-  const restlt = await prisma.post.findMany();
+const getPosts = async ({
+  search,
+  tags,
+  isFeatured,
+}: {
+  search: string | undefined;
+  tags: string[] | [];
+  isFeatured: boolean | undefined;
+}) => {
+  const andCondition: PostWhereInput[] = [];
+  if (search) {
+    andCondition.push({
+      OR: [
+        {
+          title: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          content: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          tags: {
+            has: search,
+          },
+        },
+      ],
+    });
+  }
+  if (tags.length > 0) {
+    andCondition.push({
+      tags: {
+        hasEvery: tags as string[],
+      },
+    });
+  }
+  if (typeof isFeatured === "boolean") {
+    andCondition.push({
+      isFeatured,
+    });
+  }
+  const restlt = await prisma.post.findMany({
+    where: {
+      AND: andCondition,
+    },
+  });
   return restlt;
 };
 export const postServices = {
