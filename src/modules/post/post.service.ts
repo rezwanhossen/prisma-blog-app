@@ -35,8 +35,8 @@ const getPosts = async ({
   page: number;
   limit: number;
   skip: number;
-  sortBy: string | undefined;
-  sortOrder: string | undefined;
+  sortBy: string;
+  sortOrder: string;
 }) => {
   const andCondition: PostWhereInput[] = [];
   if (search) {
@@ -90,9 +90,7 @@ const getPosts = async ({
     where: {
       AND: andCondition,
     },
-    orderBy: {
-      sortBy: sortOrder,
-    },
+    orderBy: { [sortBy]: sortOrder },
   });
   return restlt;
 };

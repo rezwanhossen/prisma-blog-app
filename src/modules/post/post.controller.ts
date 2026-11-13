@@ -2,6 +2,7 @@ import { SortOrder } from "./../../../generated/prisma/internal/prismaNamespaceB
 import { Request, Response } from "express";
 import { postServices } from "./post.service";
 import { PostStatus } from "../../../generated/prisma/enums";
+import paginationAndSortingHelper from "../../helpers/paginationAndSorting";
 
 const createpost = async (req: Request, res: Response) => {
   try {
@@ -34,11 +35,11 @@ const getpost = async (req: Request, res: Response) => {
       : undefined;
     const status = req.query.status as PostStatus | undefined;
     const authorId = req.query.authorId as string | undefined;
-    const page = Number(req.query.page ?? 1);
-    const limit = Number(req.query.limit ?? 10);
-    const skip = (page - 1) * limit;
-    const sortBy = req.query.shortBy as string | undefined;
-    const sortOrder = req.query.sortOrder as string | undefined;
+
+    const { page, limit, skip, sortBy, SortOrder } = paginationAndSortingHelper(
+      req.query
+    );
+
     const result = await postServices.getPosts({
       search: searchString,
       tags,
